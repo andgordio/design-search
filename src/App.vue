@@ -29,8 +29,12 @@ export default {
             name: 'Suggestions',
             versions: [
               {
+                code: '2',
+                name: 'Navigation with arrows'
+              },
+              {
                 code: '1',
-                name: 'Basic'
+                name: 'Basic suggestions'
               }
             ]
           },
@@ -48,7 +52,7 @@ export default {
               },
               {
                 code: '1',
-                name: 'Basic'
+                name: 'Basic filter'
               }
             ]
           }

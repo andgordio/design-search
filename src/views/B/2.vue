@@ -4,7 +4,7 @@
     <div class="fixed pin-t pin-l w-screen border-b border-grey-light bg-white z-20">
       <div class="max-w-md mx-auto h-16 flex items-center">
         <div class="w-full">
-          <input class="text-2xl py-2 px-4 w-full" type="text" name="" id="search" placeholder="Search..." v-model="searchInput" @keydown.enter="searchPressed()" @focus="searchInputFocused()" @blur="searchInputFocusLost()">
+          <input class="text-2xl py-2 px-4 w-full" type="text" name="" id="line0" tabindex="0" placeholder="Search..." v-model="searchInput" @keydown.enter="searchPressed()" @keydown.down="downPressedFrom(0)" @keydown.up="upPressedFrom(0)" @focus="searchInputFocused()" @blur="searchInputFocusLost()">
         </div>
       </div>
     </div>
@@ -12,10 +12,10 @@
     <div class="fixed pin-l w-screen z-10 bg-white" style="top: 64px;" v-if="doShowSuggestions">
       <div class="max-w-md mx-auto flex items-center border border-grey-light rounded-b">
         <div class="w-full">
-          <div class="px-4 py-3 hover:bg-grey-lighter cursor-pointer" v-for="(suggestion, i) in suggestions" :key="`sug-${i}`" @click.stop="suggestionPressed(i)">
+          <div class="px-4 py-3 hover:bg-grey-lighter cursor-pointer" v-for="(suggestion, i) in suggestions" :tabindex="i+1" :id="`line${i+1}`" :key="`sug-${i}`" @click="suggestionPressed(i)" @keydown.enter="suggestionPressed(i)" @keydown.down="downPressedFrom(i+1)" @keydown.up="upPressedFrom(i+1)">
             <span class="text-sm text-grey">search for {{searchInput}} in</span> {{suggestion}}
           </div>
-          <div class="px-4 py-3 hover:bg-grey-lighter cursor-pointer" v-if="searchResultTemp.length" @click="searchPressed()">
+          <div class="px-4 py-3 hover:bg-grey-lighter cursor-pointer" v-if="searchResultTemp.length" :tabindex="suggestions.length+1" :id="`line${suggestions.length+1}`" @click="searchPressed()" @keydown.enter="searchPressed()" @keydown.down="downPressedFrom(suggestions.length+1)" @keydown.up="upPressedFrom(suggestions.length+1)">
             <span class="text-sm text-grey">search for {{searchInput}} everywhere</span>
           </div>
           <div v-else class="px-4 py-3">
@@ -62,14 +62,14 @@ export default {
       if (this.searchInput) this.doShowSuggestions = true
     },
     searchInputFocusLost () {
-      setTimeout(() => {
-        this.doShowSuggestions = false
-      }, 100)
+      // setTimeout(() => {
+      //   this.doShowSuggestions = false
+      // }, 100)
     },
     searchPressed () {
       this.doShowSuggestions = false
       this.searchResult = this.searchResultTemp
-      document.getElementById('search').blur()
+      document.getElementById('line0').blur()
     },
     suggestionPressed (index) {
       console.log(index)
@@ -77,6 +77,26 @@ export default {
       if (this.suggestionsType === 'countries') this.searchResult = this.plants.filter(plant => plant.name.toUpperCase().includes(this.searchInput.toUpperCase()) && plant.path.country === this.suggestions[index])
       if (this.suggestionsType === 'states') this.searchResult = this.plants.filter(plant => plant.name.toUpperCase().includes(this.searchInput.toUpperCase()) && plant.path.state === this.suggestions[index])
       if (this.suggestionsType === 'cities') this.searchResult = this.plants.filter(plant => plant.name.toUpperCase().includes(this.searchInput.toUpperCase()) && plant.path.city === this.suggestions[index])
+    },
+    downPressedFrom (index) {
+      if (document.getElementById(`line${index + 1}`)) document.getElementById(`line${index + 1}`).focus()
+      else {
+        setTimeout(() => {
+          document.getElementById(`line0`).selectionStart = 10000
+          document.getElementById(`line0`).selectionEnd = 10000
+          document.getElementById(`line0`).focus()
+        }, 0)
+      }
+    },
+    upPressedFrom (index) {
+      if (index === 1) {
+        setTimeout(() => {
+          document.getElementById(`line0`).selectionStart = 10000
+          document.getElementById(`line0`).selectionEnd = 10000
+          document.getElementById(`line0`).focus()
+        }, 0)
+      } else if (index !== 0) document.getElementById(`line${index - 1}`).focus()
+      else document.getElementById(`line${this.suggestions.length + 1}`).focus()
     }
   },
   watch: {
@@ -150,5 +170,4 @@ export default {
 </script>
 
 <style>
-
 </style>
