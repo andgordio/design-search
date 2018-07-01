@@ -29,6 +29,10 @@ export default {
             name: 'Suggestions',
             versions: [
               {
+                code: '3',
+                name: 'Navigation around paths'
+              },
+              {
                 code: '2',
                 name: 'Navigation with arrows'
               },

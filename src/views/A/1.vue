@@ -33,7 +33,7 @@ export default {
   },
   computed: {
     searchResult () {
-      if (this.searchInput) return this.plants.filter(plant => plant.name.includes(this.searchInput))
+      if (this.searchInput) return this.plants.filter(plant => plant.name.toUpperCase().includes(this.searchInput.toUpperCase()))
       return this.plants
     }
   }

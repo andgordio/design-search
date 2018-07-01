@@ -33,7 +33,7 @@ export default {
   },
   computed: {
     searchResult () {
-      if (this.searchInput) return this.plants.filter(plant => plant.name.includes(this.searchInput))
+      if (this.searchInput) return this.plants.filter(plant => plant.name.toUpperCase().includes(this.searchInput.toUpperCase()))
       return this.plants
     }
   },
@@ -42,9 +42,9 @@ export default {
       setTimeout(() => {
         for (let i in this.searchResult) {
           if (this.searchInput) {
-            const starting = this.searchResult[i].name.indexOf(this.searchInput)
+            const starting = this.searchResult[i].name.toUpperCase().indexOf(this.searchInput.toUpperCase())
             const ending = starting + this.searchInput.length
-            if (document.getElementById(`name-${i}`)) document.getElementById(`name-${i}`).innerHTML = `${this.searchResult[i].name.slice(0, starting)}<span class="bg-green-lighter">${this.searchResult[i].name.slice(starting, ending)}</span>${this.searchResult[i].name.slice(ending)}`
+            if (document.getElementById(`name-${i}`)) document.getElementById(`name-${i}`).innerHTML = `${this.searchResult[i].name.slice(0, starting)}<span class="bg-yellow-light">${this.searchResult[i].name.slice(starting, ending)}</span>${this.searchResult[i].name.slice(ending)}`
           } else {
             if (document.getElementById(`name-${i}`)) document.getElementById(`name-${i}`).innerHTML = this.searchResult[i].name
           }
