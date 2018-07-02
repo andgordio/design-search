@@ -28,6 +28,7 @@
     <div class="fixed pin-t pin-l w-screen h-screen overflow-scroll">
       <div class="mt-8 pt-8"></div>
       <div class="max-w-md min-h-screen mx-auto pt-8 px-4">
+        <div v-if="selectedSuggestion" class="pb-6 text-2xl font-bold">{{selectedSuggestion}} <span @click="removeSelectedSuggestionPressed()"><i class="ion-md-close text-sm text-grey-light cursor-pointer py-2"></i></span></div>
         <div v-for="(plant, i) in searchResult" :key="i" class="border border-grey-light rounded px-4 py-3 mb-3">
           <div class="text-lg font-semibold pb-2">{{plant.name}}</div>
           <div class="">{{plant.path.country}} / {{plant.path.state}}<span v-if="plant.path.city"> / {{plant.path.city}}</span></div>
@@ -48,7 +49,8 @@ export default {
       searchInput: '',
       doShowSuggestions: false,
       suggestionsType: null,
-      suggestions: []
+      suggestions: [],
+      selectedSuggestion: null
     }
   },
   computed: {
@@ -77,6 +79,7 @@ export default {
       if (this.suggestionsType === 'countries') this.searchResult = this.plants.filter(plant => plant.name.toUpperCase().includes(this.searchInput.toUpperCase()) && plant.path.country === this.suggestions[index])
       if (this.suggestionsType === 'states') this.searchResult = this.plants.filter(plant => plant.name.toUpperCase().includes(this.searchInput.toUpperCase()) && plant.path.state === this.suggestions[index])
       if (this.suggestionsType === 'cities') this.searchResult = this.plants.filter(plant => plant.name.toUpperCase().includes(this.searchInput.toUpperCase()) && plant.path.city === this.suggestions[index])
+      this.selectedSuggestion = this.suggestions[index]
     },
     downPressedFrom (index) {
       if (document.getElementById(`line${index + 1}`)) document.getElementById(`line${index + 1}`).focus()
@@ -97,6 +100,10 @@ export default {
         }, 0)
       } else if (index !== 0) document.getElementById(`line${index - 1}`).focus()
       else document.getElementById(`line${this.suggestions.length + 1}`).focus()
+    },
+    removeSelectedSuggestionPressed () {
+      this.searchResult = this.plants.filter(plant => plant.name.toUpperCase().includes(this.searchInput.toUpperCase()))
+      this.selectedSuggestion = null
     }
   },
   watch: {

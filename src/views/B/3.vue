@@ -15,7 +15,7 @@
           <div class="px-4 py-3 hover:bg-grey-lighter cursor-pointer" v-for="(suggestion, i) in suggestions" :tabindex="i+1" :id="`line${i+1}`" :key="`sug-${i}`" @click="suggestionPressed(i)" @keydown.enter="suggestionPressed(i)" @keydown.down="downPressedFrom(i+1)" @keydown.up="upPressedFrom(i+1)">
             <span class="text-sm text-grey">search for {{searchInput}} in</span> {{suggestion}}
           </div>
-          <div class="px-4 py-3 hover:bg-grey-lighter cursor-pointer" v-for="(path, i) in suggestionsPaths" :tabindex="i+1+suggestions.length" :id="`line${i+1+suggestions.length}`" :key="`path-${i}`" @click="suggestionPathPressed(i)" @keydown.enter="suggestionPathPressed(i)" @keydown.down="downPressedFrom(i+1+suggestions.length)" @keydown.up="upPressedFrom(i+1+suggestions.length)">
+          <div class="px-4 py-3 hover:bg-grey-lighter cursor-pointer" v-for="(path, i) in suggestionsPaths" :tabindex="i+1+suggestions.length" :id="`line${i+1+suggestions.length}`" :key="`path-${i}`" @click="suggestionPathPressed(path)" @keydown.enter="suggestionPathPressed(path)" @keydown.down="downPressedFrom(i+1+suggestions.length)" @keydown.up="upPressedFrom(i+1+suggestions.length)">
             <span class="text-sm text-grey">search all in {{path.name}}</span>
           </div>
           <div class="px-4 py-3 hover:bg-grey-lighter cursor-pointer" v-if="searchResultTemp.length || suggestionsPaths.length" :tabindex="suggestions.length+1+suggestionsPaths.length" :id="`line${suggestions.length+1+suggestionsPaths.length}`" @click="searchPressed()" @keydown.enter="searchPressed()" @keydown.down="downPressedFrom(suggestions.length+1+suggestionsPaths.length)" @keydown.up="upPressedFrom(suggestions.length+1+suggestionsPaths.length)">
@@ -31,6 +31,7 @@
     <div class="fixed pin-t pin-l w-screen h-screen overflow-scroll">
       <div class="mt-8 pt-8"></div>
       <div class="max-w-md min-h-screen mx-auto pt-8 px-4">
+        <div v-if="selectedSuggestion" class="pb-6 text-2xl font-bold">{{selectedSuggestion}} <span @click="removeSelectedSuggestionPressed()"><i class="ion-md-close text-sm text-grey-light cursor-pointer py-2"></i></span></div>
         <div v-for="(plant, i) in searchResult" :key="i" class="border border-grey-light rounded px-4 py-3 mb-3">
           <div class="text-lg font-semibold pb-2">{{plant.name}}</div>
           <div class="">{{plant.path.country}} / {{plant.path.state}}<span v-if="plant.path.city"> / {{plant.path.city}}</span></div>
@@ -55,7 +56,8 @@ export default {
       doShowSuggestions: false,
       suggestionsType: null,
       suggestions: [],
-      suggestionsPaths: []
+      suggestionsPaths: [],
+      selectedSuggestion: null
     }
   },
   computed: {
@@ -82,11 +84,18 @@ export default {
       document.getElementById('line0').blur()
     },
     suggestionPressed (index) {
-      console.log(index)
       this.doShowSuggestions = false
       if (this.suggestionsType === 'countries') this.searchResult = this.plants.filter(plant => plant.name.toUpperCase().includes(this.searchInput.toUpperCase()) && plant.path.country === this.suggestions[index])
       if (this.suggestionsType === 'states') this.searchResult = this.plants.filter(plant => plant.name.toUpperCase().includes(this.searchInput.toUpperCase()) && plant.path.state === this.suggestions[index])
       if (this.suggestionsType === 'cities') this.searchResult = this.plants.filter(plant => plant.name.toUpperCase().includes(this.searchInput.toUpperCase()) && plant.path.city === this.suggestions[index])
+      this.selectedSuggestion = this.suggestions[index]
+    },
+    suggestionPathPressed (path) {
+      this.searchInput = null
+      if (path.type === 'country') this.searchResult = this.plants.filter(plant => plant.path.country === path.name)
+      if (path.type === 'state') this.searchResult = this.plants.filter(plant => plant.path.state === path.name)
+      if (path.type === 'city') this.searchResult = this.plants.filter(plant => plant.path.city === path.name)
+      this.selectedSuggestion = path.name
     },
     downPressedFrom (index) {
       if (document.getElementById(`line${index + 1}`)) document.getElementById(`line${index + 1}`).focus()
@@ -107,6 +116,11 @@ export default {
         }, 0)
       } else if (index !== 0) document.getElementById(`line${index - 1}`).focus()
       else document.getElementById(`line${this.suggestions.length + this.suggestionsPaths.length + 1}`).focus()
+    },
+    removeSelectedSuggestionPressed () {
+      if (this.searchInput) this.searchResult = this.plants.filter(plant => plant.name.toUpperCase().includes(this.searchInput.toUpperCase()))
+      else this.searchResult = this.plants
+      this.selectedSuggestion = null
     },
     //
     // ACTIONS
@@ -184,7 +198,7 @@ export default {
       for (let i in this.allCities) {
         if (this.allCities[i].toUpperCase().includes(this.searchInput.toUpperCase())) this.suggestionsPaths.push({type: 'city', name: this.allCities[i]})
       }
-      console.log(this.suggestionsPaths)
+      // console.log(this.suggestionsPaths)
     },
     populateAllCountries () {
       const countries = []
