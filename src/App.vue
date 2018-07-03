@@ -25,6 +25,24 @@ export default {
         date: 'prototypeDate',
         iterations: [
           {
+            code: 'C',
+            name: 'Suggestions',
+            versions: [
+              {
+                code: '3',
+                name: 'Phantom suggestions'
+              },
+              {
+                code: '2',
+                name: 'Autoremove suggestions from input'
+              },
+              {
+                code: '1',
+                name: 'Improved navigation'
+              }
+            ]
+          },
+          {
             code: 'B',
             name: 'Suggestions',
             versions: [
