@@ -13,23 +13,23 @@
             <button v-else @click="backFromSearchPressed()"><i class="ion-md-arrow-back text-2xl"></i></button>
           </div>
           <div class="flex-1">
-            <input class="text-2xl py-3 px-4 w-full bg-transparent" type="text" name="" id="line0" tabindex="0" placeholder="Search..." v-model="searchInput" @keydown.enter="searchPressed()" @keydown.down="downPressedFrom(0)" @keydown.up="upPressedFrom(0)" @focus="searchInputFocused()" @blur="searchInputFocusLost()" @input="suffix = ''"> <!---->
+            <input class="text-2xl py-3 px-4 w-full bg-transparent" type="text" name="" id="line0" tabindex="0" placeholder="Search..." v-model="searchInput" @input="suffix = ''" @keydown.enter="searchPressed()" @keydown.down="downPressedFrom(0)" @keydown.up="upPressedFrom(0)" @focus="searchInputFocused()" @blur="searchInputFocusLost()">
           </div>
         </div>
       </div>
     </div>
     <!-- Suggestions -->
-    <div class="fixed pin-l w-screen z-10 bg-white" style="top: 64px;" v-if="doShowSuggestions" @click="hideSuggestions()">
+    <div class="fixed pin-l w-screen z-10 bg-white" style="top: 64px;" v-if="doShowSuggestions">
       <div class="max-w-md mx-auto flex items-center border border-grey-light rounded-b">
         <div class="w-full">
-          <div class="px-4 py-3 hover:bg-grey-lighter cursor-pointer" v-for="(suggestion, i) in suggestions" :tabindex="i+1" :id="`line${i+1}`" :key="`sug-${i}`" @focus="suffix = ` in ${suggestion}`" @click.stop="suggestionPressed(i)" @keydown.enter="suggestionPressed(i)" @keydown.down="downPressedFrom(i+1)" @keydown.up="upPressedFrom(i+1)">
-            <span class="text-sm text-grey">search for {{searchInputTemp || searchInput}} in</span> {{suggestion}}
+          <div class="px-4 py-3 hover:bg-grey-lighter cursor-pointer" v-for="(suggestion, i) in suggestions" :tabindex="i+1" :id="`line${i+1}`" :key="`sug-${i}`" @click="suggestionPressed(i)" @keydown.enter="suggestionPressed(i)" @keydown.down="downPressedFrom(i+1)" @keydown.up="upPressedFrom(i+1)">
+            <span class="text-sm text-grey">search for {{searchInput}} in</span> {{suggestion}}
           </div>
-          <div class="px-4 py-3 hover:bg-grey-lighter cursor-pointer" v-for="(path, i) in suggestionsPaths" :tabindex="i+1+suggestions.length" :id="`line${i+1+suggestions.length}`" :key="`path-${i}`" @focus="pathFocused(path)" @click.stop="suggestionPathPressed(path)" @keydown.enter="suggestionPathPressed(path)" @keydown.down="downPressedFrom(i+1+suggestions.length)" @keydown.up="upPressedFrom(i+1+suggestions.length)">
+          <div class="px-4 py-3 hover:bg-grey-lighter cursor-pointer" v-for="(path, i) in suggestionsPaths" :tabindex="i+1+suggestions.length" :id="`line${i+1+suggestions.length}`" :key="`path-${i}`" @click="suggestionPathPressed(path)" @keydown.enter="suggestionPathPressed(path)" @keydown.down="downPressedFrom(i+1+suggestions.length)" @keydown.up="upPressedFrom(i+1+suggestions.length)">
             <span class="text-sm text-grey">search all in {{path.name}}</span>
           </div>
-          <div class="px-4 py-3 hover:bg-grey-lighter cursor-pointer" v-if="searchResultTemp.length || suggestionsPaths.length" :tabindex="suggestions.length+1+suggestionsPaths.length" :id="`line${suggestions.length+1+suggestionsPaths.length}`" @focus="suffix = ` everywhere`" @click.stop="searchPressed()" @keydown.enter="searchPressed()" @keydown.down="downPressedFrom(suggestions.length+1+suggestionsPaths.length)" @keydown.up="upPressedFrom(suggestions.length+1+suggestionsPaths.length)">
-            <span class="text-sm text-grey">search for {{searchInputTemp || searchInput}} everywhere</span>
+          <div class="px-4 py-3 hover:bg-grey-lighter cursor-pointer" v-if="searchResultTemp.length || suggestionsPaths.length" :tabindex="suggestions.length+1+suggestionsPaths.length" :id="`line${suggestions.length+1+suggestionsPaths.length}`" @click="searchPressed()" @keydown.enter="searchPressed()" @keydown.down="downPressedFrom(suggestions.length+1+suggestionsPaths.length)" @keydown.up="upPressedFrom(suggestions.length+1+suggestionsPaths.length)">
+            <span class="text-sm text-grey">search for {{searchInput}} everywhere</span>
           </div>
           <div v-else class="px-4 py-3">
             found nowhere :(
@@ -38,10 +38,10 @@
       </div>
     </div>
     <!-- Content -->
-    <div class="fixed pin-t pin-l w-screen h-screen overflow-scroll" @click="hideSuggestions()">
+    <div class="fixed pin-t pin-l w-screen h-screen overflow-scroll">
       <div class="mt-8 pt-8"></div>
       <div class="max-w-md min-h-screen mx-auto pt-8 px-4">
-        <!-- <div v-if="selectedSuggestion" class="pb-6 text-2xl font-bold">{{selectedSuggestion}} <span @click="removeSelectedSuggestionPressed()"><i class="ion-md-close text-sm text-grey-light cursor-pointer py-2"></i></span></div> -->
+        <div v-if="selectedSuggestion" class="pb-6 text-2xl font-bold">{{selectedSuggestion}} <span @click="removeSelectedSuggestionPressed()"><i class="ion-md-close text-sm text-grey-light cursor-pointer py-2"></i></span></div>
         <div v-for="(plant, i) in searchResult" :key="i" class="border border-grey-light rounded px-4 py-3 mb-3">
           <div class="text-lg font-semibold pb-2">{{plant.name}}</div>
           <div class="">{{plant.path.country}} / {{plant.path.state}}<span v-if="plant.path.city"> / {{plant.path.city}}</span></div>
@@ -63,14 +63,12 @@ export default {
       allCities: null,
       searchResult: plantsjson,
       searchInput: '',
-      searchInputTemp: '',
       doShowSuggestions: false,
       suggestionsType: null,
       suggestions: [],
       suggestionsPaths: [],
       selectedSuggestion: null,
-      suffix: '',
-      suffixTemp: ''
+      suffix: ''
     }
   },
   computed: {
@@ -85,43 +83,21 @@ export default {
     //
     searchInputFocused () {
       if (this.searchInput) this.doShowSuggestions = true
-      // this.suffix = ''
-      if (this.searchInputTemp) {
-        this.searchInput = this.searchInputTemp
-        this.searchInputTemp = ''
-      }
     },
     searchInputFocusLost () {
       // setTimeout(() => {
       //   this.doShowSuggestions = false
       // }, 100)
     },
-    pathFocused (path) {
-      if (!this.searchInputTemp) this.searchInputTemp = this.searchInput
-      if (!this.suffixTemp) this.suffix = ''
-      this.searchInput = path.name
-      this.suffix = ''
-    },
     searchPressed () {
-      if (!this.suffix) {
-        this.doShowSuggestions = false
-        this.suffix = ' everywhere'
-        this.suffixTemp = ' everywhere'
-        this.searchResult = this.searchResultTemp
-        this.selectedSuggestion = null
-      } else {
-        if (this.selectedSuggestion.parameter === 'area') {
-          this.suggestionPressed(this.selectedSuggestion.index)
-        } else if (this.selectedSuggestion.parameter === 'path') {
-          this.suggestionPathPressed(this.selectedSuggestion.path)
-        }
-      }
+      this.doShowSuggestions = false
+      this.suffix = ''
+      this.searchResult = this.searchResultTemp
       document.getElementById('line0').blur()
     },
     backFromSearchPressed () {
       this.searchInput = ''
       this.suffix = ''
-      this.suffixTemp = ''
       this.searchResult = this.plants
       this.selectedSuggestion = null
     },
@@ -131,8 +107,7 @@ export default {
       if (this.suggestionsType === 'cities') this.searchResult = this.plants.filter(plant => plant.name.toUpperCase().includes(this.searchInput.toUpperCase()) && plant.path.city === this.suggestions[index])
       // this.searchInput = `${this.searchInput} in ${this.suggestions[index]}`
       this.suffix = ` in ${this.suggestions[index]}`
-      this.suffixTemp = ` in ${this.suggestions[index]}`
-      this.selectedSuggestion = {parameter: 'area', type: this.suggestionsType, name: this.suggestions[index], index}
+      // this.selectedSuggestion = this.suggestions[index]
       setTimeout(() => {
         this.doShowSuggestions = false
       }, 0)
@@ -143,15 +118,10 @@ export default {
       if (path.type === 'state') this.searchResult = this.plants.filter(plant => plant.path.state === path.name)
       if (path.type === 'city') this.searchResult = this.plants.filter(plant => plant.path.city === path.name)
       this.suffix = path.name.slice(prefix.length)
-      this.suffixTemp = path.name.slice(prefix.length)
-      this.selectedSuggestion = {parameter: 'path', path}
+      // this.selectedSuggestion = path.name
       setTimeout(() => {
         this.doShowSuggestions = false
       }, 0)
-    },
-    hideSuggestions () {
-      this.suffix = this.suffixTemp
-      this.doShowSuggestions = false
     },
     //
     //
@@ -316,11 +286,11 @@ export default {
   },
   watch: {
     searchInput () {
-      if (this.searchInput && !this.searchInputTemp) {
+      if (this.searchInput) {
         this.doShowSuggestions = true
         this.suggestItems()
         this.suggestPaths()
-      } else if (!this.searchInput && !this.searchInputTemp) {
+      } else {
         this.doShowSuggestions = false
         // this.searchResult = plantsjson
       }
