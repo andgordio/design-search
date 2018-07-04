@@ -22,13 +22,13 @@
     <div class="fixed pin-l w-screen z-10 bg-white" style="top: 64px;" v-if="doShowSuggestions" @click="hideSuggestions()">
       <div class="max-w-md mx-auto flex items-center border border-grey-light rounded-b">
         <div class="w-full">
-          <div class="px-4 py-3 hover:bg-grey-lighter cursor-pointer" v-for="(suggestion, i) in suggestions" :tabindex="i+1" :id="`line${i+1}`" :key="`sug-${i}`" @focus="suffix = ` in ${suggestion}`" @click.stop="suggestionPressed(i)" @keydown.enter="suggestionPressed(i)" @keydown.down="downPressedFrom(i+1)" @keydown.up="upPressedFrom(i+1)">
+          <div class="px-4 py-3 hover:bg-grey-lighter cursor-pointer" v-for="(suggestion, i) in suggestions" :tabindex="i+1" :id="`line${i+1}`" :key="`sug-${i}`" @focus="suggestionFocused(suggestion)" @mouseover="suggestionFocused(suggestion)" @click.stop="suggestionPressed(i)" @keydown.enter="suggestionPressed(i)" @keydown.down="downPressedFrom(i+1)" @keydown.up="upPressedFrom(i+1)">
             <span class="text-sm text-grey">search for {{searchInputTemp || searchInput}} in</span> {{suggestion}}
           </div>
-          <div class="px-4 py-3 hover:bg-grey-lighter cursor-pointer" v-for="(path, i) in suggestionsPaths" :tabindex="i+1+suggestions.length" :id="`line${i+1+suggestions.length}`" :key="`path-${i}`" @focus="pathFocused(path)" @click.stop="suggestionPathPressed(path)" @keydown.enter="suggestionPathPressed(path)" @keydown.down="downPressedFrom(i+1+suggestions.length)" @keydown.up="upPressedFrom(i+1+suggestions.length)">
+          <div class="px-4 py-3 hover:bg-grey-lighter cursor-pointer" v-for="(path, i) in suggestionsPaths" :tabindex="i+1+suggestions.length" :id="`line${i+1+suggestions.length}`" :key="`path-${i}`" @focus="pathFocused(path)" @mouseover="pathFocused(path)" @click.stop="suggestionPathPressed(path)" @keydown.enter="suggestionPathPressed(path)" @keydown.down="downPressedFrom(i+1+suggestions.length)" @keydown.up="upPressedFrom(i+1+suggestions.length)">
             <span class="text-sm text-grey">search all in {{path.name}}</span>
           </div>
-          <div class="px-4 py-3 hover:bg-grey-lighter cursor-pointer" v-if="searchResultTemp.length || suggestionsPaths.length" :tabindex="suggestions.length+1+suggestionsPaths.length" :id="`line${suggestions.length+1+suggestionsPaths.length}`" @focus="suffix = ` everywhere`" @click.stop="searchPressed()" @keydown.enter="searchPressed()" @keydown.down="downPressedFrom(suggestions.length+1+suggestionsPaths.length)" @keydown.up="upPressedFrom(suggestions.length+1+suggestionsPaths.length)">
+          <div class="px-4 py-3 hover:bg-grey-lighter cursor-pointer" v-if="searchResultTemp.length || suggestionsPaths.length" :tabindex="suggestions.length+1+suggestionsPaths.length" :id="`line${suggestions.length+1+suggestionsPaths.length}`" @focus="everywhereFocused()" @mouseover="everywhereFocused()" @click.stop="searchPressed()" @keydown.enter="searchPressed()" @keydown.down="downPressedFrom(suggestions.length+1+suggestionsPaths.length)" @keydown.up="upPressedFrom(suggestions.length+1+suggestionsPaths.length)">
             <span class="text-sm text-grey">search for {{searchInputTemp || searchInput}} everywhere</span>
           </div>
           <div v-else class="px-4 py-3">
@@ -86,6 +86,7 @@ export default {
     searchInputFocused () {
       if (this.searchInput) this.doShowSuggestions = true
       // this.suffix = ''
+      if (!this.suffixTemp) this.suffix = ''
       if (this.searchInputTemp) {
         this.searchInput = this.searchInputTemp
         this.searchInputTemp = ''
@@ -96,11 +97,25 @@ export default {
       //   this.doShowSuggestions = false
       // }, 100)
     },
+    suggestionFocused (suggestion) {
+      this.suffix = ` in ${suggestion}`
+      if (this.searchInputTemp) {
+        this.searchInput = this.searchInputTemp
+        this.searchInputTemp = ''
+      }
+    },
     pathFocused (path) {
       if (!this.searchInputTemp) this.searchInputTemp = this.searchInput
       if (!this.suffixTemp) this.suffix = ''
       this.searchInput = path.name
       this.suffix = ''
+    },
+    everywhereFocused () {
+      if (this.searchInputTemp) {
+        this.searchInput = this.searchInputTemp
+        this.searchInputTemp = ''
+      }
+      this.suffix = ` everywhere`
     },
     searchPressed () {
       if (!this.suffix) {
@@ -109,6 +124,9 @@ export default {
         this.suffixTemp = ' everywhere'
         this.searchResult = this.searchResultTemp
         this.selectedSuggestion = null
+        this.searchInputTemp = ''
+        this.suggestItems()
+        this.suggestPaths()
       } else {
         if (this.selectedSuggestion.parameter === 'area') {
           this.suggestionPressed(this.selectedSuggestion.index)
@@ -120,6 +138,7 @@ export default {
     },
     backFromSearchPressed () {
       this.searchInput = ''
+      this.searchInputTemp = ''
       this.suffix = ''
       this.suffixTemp = ''
       this.searchResult = this.plants
@@ -132,6 +151,9 @@ export default {
       // this.searchInput = `${this.searchInput} in ${this.suggestions[index]}`
       this.suffix = ` in ${this.suggestions[index]}`
       this.suffixTemp = ` in ${this.suggestions[index]}`
+      this.searchInputTemp = ''
+      this.suggestItems()
+      this.suggestPaths()
       this.selectedSuggestion = {parameter: 'area', type: this.suggestionsType, name: this.suggestions[index], index}
       setTimeout(() => {
         this.doShowSuggestions = false
@@ -144,6 +166,9 @@ export default {
       if (path.type === 'city') this.searchResult = this.plants.filter(plant => plant.path.city === path.name)
       this.suffix = path.name.slice(prefix.length)
       this.suffixTemp = path.name.slice(prefix.length)
+      this.searchInputTemp = ''
+      this.suggestItems()
+      this.suggestPaths()
       this.selectedSuggestion = {parameter: 'path', path}
       setTimeout(() => {
         this.doShowSuggestions = false
@@ -157,7 +182,7 @@ export default {
     //
     //
     //
-    // todo: C3: add prefix on suggestions and suggestionsPaths hover.
+    // todo: C3: add prefix on suggestions and suggestionsPaths hover. (on arrow selection done)
     // todo: D1-D3: create different visual styles
     //
     //
