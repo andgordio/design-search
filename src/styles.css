@@ -42,13 +42,13 @@
   }
 
   input::placeholder {
-    opacity: 1;
-    @apply .text-grey-light
+    opacity: 0.4;
+    /* @apply .text-grey-light */
   }
 
   div:focus {
     outline: none;
-    @apply .bg-grey-lighter
+    @apply .bg-green-dark
   }
  
  /**

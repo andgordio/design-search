@@ -25,6 +25,16 @@ export default {
         date: 'prototypeDate',
         iterations: [
           {
+            code: 'D',
+            name: 'Wrap up',
+            versions: [
+              {
+                code: '1',
+                name: 'Visual style and analytics'
+              }
+            ]
+          },
+          {
             code: 'C',
             name: 'Suggestions',
             versions: [

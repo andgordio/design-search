@@ -1,37 +1,37 @@
 <template>
-  <div class="bg-grey">
+  <div class="bg-grey" id="d1">
     <!-- Header -->
-    <div class="fixed pin-t pin-l w-screen border-b border-grey-light bg-white z-20">
-      <div class="max-w-md mx-auto h-16 flex items-center relative">
-        <div class="absolute pin-t pin-l text-2xl" style="top: 19px; left: 64px;">
-          <span class="text-white">{{searchInput}}</span>
-          <span class="text-grey">{{suffix}}</span>
+    <div class="fixed pin-t pin-l w-screen bg-green z-20">
+      <div class="max-w-md mx-auto flex items-center relative" style="height: 84px;">
+        <div class="absolute pin-t pin-l text-2xl font-light" style="top: 29px; left: 16px;">
+          <span class="text-green">{{searchInput}}</span>
+          <span class="text-green-darker">{{suffix}}</span>
         </div>
         <div class="absolute w-full flex items-center">
-          <div class="pl-6 w-12">
+          <!-- <div class="pl-6 w-12">
             <button v-if="searchResult.length === 501"><i class="ion-md-search text-2xl"></i></button>
             <button v-else @click="backFromSearchPressed()"><i class="ion-md-arrow-back text-2xl"></i></button>
-          </div>
+          </div> -->
           <div class="flex-1">
-            <input class="text-2xl py-3 px-4 w-full bg-transparent" type="text" name="" id="line0" tabindex="0" placeholder="Search..." v-model="searchInput" @keydown.enter="searchPressed()" @keydown.down="downPressedFrom(0)" @keydown.up="upPressedFrom(0)" @focus="searchInputFocused()" @blur="searchInputFocusLost()" @input="suffix = ''"> <!---->
+            <input class="text-2xl py-3 px-6 w-full bg-transparent text-white font-light" type="text" name="" id="line0" tabindex="0" placeholder="Search..." v-model="searchInput" @keydown.enter="searchPressed()" @keydown.down="downPressedFrom(0)" @keydown.up="upPressedFrom(0)" @focus="searchInputFocused()" @blur="searchInputFocusLost()" @input="suffix = ''"> <!---->
           </div>
         </div>
       </div>
     </div>
     <!-- Suggestions -->
-    <div class="fixed pin-l w-screen z-10 bg-white" style="top: 64px;" v-if="doShowSuggestions" @click="hideSuggestions()">
-      <div class="max-w-md mx-auto flex items-center border border-grey-light rounded-b">
-        <div class="w-full">
-          <div class="px-4 py-3 hover:bg-grey-lighter cursor-pointer" v-for="(suggestion, i) in suggestions" :tabindex="i+1" :id="`line${i+1}`" :key="`sug-${i}`" @focus="suggestionFocused(suggestion)" @mouseover="suggestionFocused(suggestion)" @mouseout="searchInputFocused()" @click.stop="suggestionPressed(i)" @keydown.enter="suggestionPressed(i)" @keydown.down="downPressedFrom(i+1)" @keydown.up="upPressedFrom(i+1)">
-            <span class="text-sm text-grey">search for {{searchInputTemp || searchInput}} in</span> {{suggestion}}
+    <div class="fixed pin-l w-screen z-10 bg-green" style="top: 84px;" v-if="doShowSuggestions" @click="hideSuggestions()">
+      <div class="max-w-md mx-auto flex items-center rounded-b">
+        <div class="w-full text-green-darker">
+          <div class="px-6 py-3 rounded-full hover:bg-green-dark cursor-pointer" v-for="(suggestion, i) in suggestions" :tabindex="i+1" :id="`line${i+1}`" :key="`sug-${i}`" @focus="suggestionFocused(suggestion)" @mouseover="suggestionFocused(suggestion)" @mouseout="searchInputFocused()" @click.stop="suggestionPressed(i)" @keydown.enter="suggestionPressed(i)" @keydown.down="downPressedFrom(i+1)" @keydown.up="upPressedFrom(i+1)">
+            <span class="text-sm text-white">{{searchInputTemp || searchInput}}</span> in {{suggestion}}
           </div>
-          <div class="px-4 py-3 hover:bg-grey-lighter cursor-pointer" v-for="(path, i) in suggestionsPaths" :tabindex="i+1+suggestions.length" :id="`line${i+1+suggestions.length}`" :key="`path-${i}`" @focus="pathFocused(path)" @mouseover="pathFocused(path)" @mouseout="searchInputFocused()" @click.stop="suggestionPathPressed(path)" @keydown.enter="suggestionPathPressed(path)" @keydown.down="downPressedFrom(i+1+suggestions.length)" @keydown.up="upPressedFrom(i+1+suggestions.length)">
-            <span class="text-sm text-grey">search all in {{path.name}}</span>
+          <div class="px-6 py-3 hover:bg-green-dark cursor-pointer" v-for="(path, i) in suggestionsPaths" :tabindex="i+1+suggestions.length" :id="`line${i+1+suggestions.length}`" :key="`path-${i}`" @focus="pathFocused(path)" @mouseover="pathFocused(path)" @mouseout="searchInputFocused()" @click.stop="suggestionPathPressed(path)" @keydown.enter="suggestionPathPressed(path)" @keydown.down="downPressedFrom(i+1+suggestions.length)" @keydown.up="upPressedFrom(i+1+suggestions.length)">
+            <span class="text-sm text-white">all</span> in {{path.name}}
           </div>
-          <div class="px-4 py-3 hover:bg-grey-lighter cursor-pointer" v-if="searchResultTemp.length || suggestionsPaths.length" :tabindex="suggestions.length+1+suggestionsPaths.length" :id="`line${suggestions.length+1+suggestionsPaths.length}`" @focus="everywhereFocused()" @mouseover="everywhereFocused()" @mouseout="searchInputFocused()" @click.stop="searchPressed()" @keydown.enter="searchPressed()" @keydown.down="downPressedFrom(suggestions.length+1+suggestionsPaths.length)" @keydown.up="upPressedFrom(suggestions.length+1+suggestionsPaths.length)">
-            <span class="text-sm text-grey">search for {{searchInputTemp || searchInput}} everywhere</span>
+          <div class="px-6 py-3 hover:bg-green-dark cursor-pointer" v-if="searchResultTemp.length || suggestionsPaths.length" :tabindex="suggestions.length+1+suggestionsPaths.length" :id="`line${suggestions.length+1+suggestionsPaths.length}`" @focus="everywhereFocused()" @mouseover="everywhereFocused()" @mouseout="searchInputFocused()" @click.stop="searchPressed()" @keydown.enter="searchPressed()" @keydown.down="downPressedFrom(suggestions.length+1+suggestionsPaths.length)" @keydown.up="upPressedFrom(suggestions.length+1+suggestionsPaths.length)">
+            <span class="text-sm text-white">{{searchInputTemp || searchInput}}</span> everywhere
           </div>
-          <div v-else class="px-4 py-3">
+          <div v-else class="px-6 py-3">
             found nowhere :(
           </div>
         </div>
@@ -353,5 +353,8 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss" scoped>
+#d1 {
+  font-family: 'IBM Plex Serif', apple-system, Roboto, serif;
+}
 </style>
