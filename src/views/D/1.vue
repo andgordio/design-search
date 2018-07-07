@@ -3,13 +3,13 @@
     <!-- Header -->
     <div class="fixed pin-t pin-l w-screen bg-green z-20">
       <div class="max-w-md mx-auto flex items-center relative" style="height: 84px;">
-        <div class="absolute pin-t pin-l text-2xl font-light" style="top: 29px; left: 24px;">
+        <div class="absolute pin-t pin-l text-3xl font-light" style="top: 25px; left: 24px;">
           <span class="text-green">{{searchInput}}</span>
           <span class="text-green-darker">{{suffix}}</span>
         </div>
         <div class="absolute w-full flex items-center">
           <div class="flex-1">
-            <input class="text-2xl py-3 px-6 w-full bg-transparent text-white font-light" type="text" name="" id="line0" tabindex="0" placeholder="Search..." v-model="searchInput" @keydown.enter="searchPressed()" @keydown.down="downPressedFrom(0)" @keydown.up="upPressedFrom(0)" @focus="searchInputFocused()" @blur="searchInputFocusLost()" @input="suffix = ''"> <!---->
+            <input class="text-3xl py-3 px-6 w-full bg-transparent text-white font-light" type="text" name="" id="line0" tabindex="0" placeholder="Search..." v-model="searchInput" @keydown.enter="searchPressed()" @keydown.down="downPressedFrom(0)" @keydown.up="upPressedFrom(0)" @focus="searchInputFocused()" @blur="searchInputFocusLost()" @input="suffix = ''"> <!---->
           </div>
           <div class="pl-6 px-6" style="height: 24px;">
             <!-- <button v-if="searchResult.length === 501"><i class="ion-md-search text-2xl"></i></button> -->
@@ -25,15 +25,15 @@
         <div class="border-t border-green-dark-two mx-6"></div>
         <div class="w-full text-green-darker pt-4 pb-8">
           <div class="px-6 py-2 my-1 rounded-full hover:bg-green-dark cursor-pointer" v-for="(suggestion, i) in suggestions" :tabindex="i+1" :id="`line${i+1}`" :key="`sug-${i}`" @focus="suggestionFocused(suggestion)" @mouseover="suggestionFocused(suggestion)" @mouseout="searchInputFocused()" @click.stop="suggestionPressed(i)" @keydown.enter="suggestionPressed(i)" @keydown.down="downPressedFrom(i+1)" @keydown.up="upPressedFrom(i+1)">
-            <span class="text-sm text-white">{{searchInputTemp || searchInput}}</span> in {{suggestion}}
+            <span class="text-white">{{searchInputTemp || searchInput}}</span> in {{suggestion}}
           </div>
           <div class="w-full pt-2" v-if="suggestionsPaths.length > 0"></div>
           <div class="px-6 py-2 my-1 rounded-full hover:bg-green-dark cursor-pointer" v-for="(path, i) in suggestionsPaths" v-if="i < 5" :tabindex="i+1+suggestions.length" :id="`line${i+1+suggestions.length}`" :key="`path-${i}`" @focus="pathFocused(path)" @mouseover="pathFocused(path)" @mouseout="searchInputFocused()" @click.stop="suggestionPathPressed(path)" @keydown.enter="suggestionPathPressed(path)" @keydown.down="downPressedFrom(i+1+suggestions.length)" @keydown.up="upPressedFrom(i+1+suggestions.length)">
-            <span class="text-sm text-white">all</span> in {{path.name}}
+            <span class="text-white">all</span> in {{path.name}}
           </div>
           <div class="w-full pt-2"></div>
           <div class="px-6 py-2 my-1 rounded-full hover:bg-green-dark cursor-pointer" v-if="searchResultTemp.length || suggestionsPaths.length" :tabindex="suggestions.length+1+(suggestionsPaths.length > 5 ? 5 : suggestionsPaths.length)" :id="`line${suggestions.length + 1 + (suggestionsPaths.length > 5 ? 5 : suggestionsPaths.length)}`" @focus="everywhereFocused()" @mouseover="everywhereFocused()" @mouseout="searchInputFocused()" @click.stop="searchEverywherePressed()" @keydown.enter="searchEverywherePressed()" @keydown.down="downPressedFrom(suggestions.length + 1 + (suggestionsPaths.length > 5 ? 5 : suggestionsPaths.length))" @keydown.up="upPressedFrom(suggestions.length+1+(suggestionsPaths.length > 5 ? 5 : suggestionsPaths.length))">
-            <span class="text-sm text-white">{{searchInputTemp || searchInput}}</span> everywhere
+            <span class="text-white">{{searchInputTemp || searchInput}}</span> everywhere
           </div>
           <div v-else class="px-6 py-2 my-1">
             found nowhere :(
@@ -135,6 +135,7 @@ export default {
       this.suffix = ` everywhere`
     },
     searchPressed () {
+      this.$ga.event('search', 'Enter', this.searchInput)
       if (!this.suffix) {
         this.doShowSuggestions = false
         this.suffix = ' everywhere'
@@ -154,6 +155,7 @@ export default {
       document.getElementById('line0').blur()
     },
     searchEverywherePressed () {
+      this.$ga.event('search', 'Everywhere', this.searchInput)
       this.doShowSuggestions = false
       this.suffix = ' everywhere'
       this.suffixTemp = ' everywhere'
@@ -164,6 +166,7 @@ export default {
       this.suggestPaths()
     },
     backFromSearchPressed () {
+      this.$ga.event('search', 'Exit Search', this.searchInput)
       this.searchInput = ''
       this.searchInputTemp = ''
       this.suffix = ''
@@ -172,6 +175,7 @@ export default {
       this.selectedSuggestion = null
     },
     suggestionPressed (index) {
+      this.$ga.event('search', 'Suggestion', this.searchInput)
       if (this.suggestionsType === 'countries') this.searchResult = this.plants.filter(plant => plant.name.toUpperCase().includes(this.searchInput.toUpperCase()) && plant.path.country === this.suggestions[index])
       if (this.suggestionsType === 'states') this.searchResult = this.plants.filter(plant => plant.name.toUpperCase().includes(this.searchInput.toUpperCase()) && plant.path.state === this.suggestions[index])
       if (this.suggestionsType === 'cities') this.searchResult = this.plants.filter(plant => plant.name.toUpperCase().includes(this.searchInput.toUpperCase()) && plant.path.city === this.suggestions[index])
@@ -187,6 +191,7 @@ export default {
       }, 0)
     },
     suggestionPathPressed (path) {
+      this.$ga.event('search', 'Suggestion path', this.searchInput)
       const prefix = this.searchInput
       if (path.type === 'country') this.searchResult = this.plants.filter(plant => plant.path.country === path.name)
       if (path.type === 'state') this.searchResult = this.plants.filter(plant => plant.path.state === path.name)
@@ -202,10 +207,12 @@ export default {
       }, 0)
     },
     hideSuggestions () {
+      this.$ga.event('search', 'Suggestions hidden', this.searchInput)
       this.suffix = this.suffixTemp
       this.doShowSuggestions = false
     },
     downPressedFrom (index) {
+      this.$ga.event('search', 'Down', this.searchInput)
       if (document.getElementById(`line${index + 1}`)) document.getElementById(`line${index + 1}`).focus()
       else {
         setTimeout(() => {
@@ -216,6 +223,7 @@ export default {
       }
     },
     upPressedFrom (index) {
+      this.$ga.event('search', 'Up', this.searchInput)
       if (index === 1) {
         setTimeout(() => {
           document.getElementById(`line0`).selectionStart = 10000
@@ -231,6 +239,7 @@ export default {
       this.selectedSuggestion = null
     },
     leafPressed (i) {
+      this.$ga.event('action', this.searchResult[i].isSelected ? 'Off' : 'On', this.searchResult[i].name)
       this.searchResult[i].isSelected = !this.searchResult[i].isSelected
       this.refresher++
     },
@@ -381,6 +390,20 @@ export default {
       item.isSelected = false
       this.plants.push(item)
     }
+  },
+  mounted () {
+    document.onkeydown = (evt) => {
+      evt = evt || window.event
+      var isEscape = false
+      if ('key' in evt) {
+        isEscape = (evt.key === 'Escape' || evt.key === 'Esc')
+      } else {
+        isEscape = (evt.keyCode === 27)
+      }
+      if (isEscape) {
+        this.hideSuggestions()
+      }
+    }
   }
 }
 </script>
@@ -388,6 +411,8 @@ export default {
 <style lang="scss" scoped>
 #d1 {
   font-family: 'IBM Plex Serif', apple-system, Roboto, serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 button, button:active {
