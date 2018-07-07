@@ -3,48 +3,60 @@
     <!-- Header -->
     <div class="fixed pin-t pin-l w-screen bg-green z-20">
       <div class="max-w-md mx-auto flex items-center relative" style="height: 84px;">
-        <div class="absolute pin-t pin-l text-2xl font-light" style="top: 29px; left: 16px;">
+        <div class="absolute pin-t pin-l text-2xl font-light" style="top: 29px; left: 24px;">
           <span class="text-green">{{searchInput}}</span>
           <span class="text-green-darker">{{suffix}}</span>
         </div>
         <div class="absolute w-full flex items-center">
-          <!-- <div class="pl-6 w-12">
-            <button v-if="searchResult.length === 501"><i class="ion-md-search text-2xl"></i></button>
-            <button v-else @click="backFromSearchPressed()"><i class="ion-md-arrow-back text-2xl"></i></button>
-          </div> -->
           <div class="flex-1">
             <input class="text-2xl py-3 px-6 w-full bg-transparent text-white font-light" type="text" name="" id="line0" tabindex="0" placeholder="Search..." v-model="searchInput" @keydown.enter="searchPressed()" @keydown.down="downPressedFrom(0)" @keydown.up="upPressedFrom(0)" @focus="searchInputFocused()" @blur="searchInputFocusLost()" @input="suffix = ''"> <!---->
+          </div>
+          <div class="pl-6 px-6" style="height: 24px;">
+            <!-- <button v-if="searchResult.length === 501"><i class="ion-md-search text-2xl"></i></button> -->
+            <!-- <button v-if="searchResult.length !== 501" @click="backFromSearchPressed()"><i class="ion-ios-close text-2xl text-green-darker"></i></button> -->
+            <button v-if="searchResult.length !== 501" @click="backFromSearchPressed()"><img src="./../../assets/icn-close.png" style="width: 24px;"></button>
           </div>
         </div>
       </div>
     </div>
     <!-- Suggestions -->
     <div class="fixed pin-l w-screen z-10 bg-green" style="top: 84px;" v-if="doShowSuggestions" @click="hideSuggestions()">
-      <div class="max-w-md mx-auto flex items-center rounded-b">
-        <div class="w-full text-green-darker">
-          <div class="px-6 py-3 rounded-full hover:bg-green-dark cursor-pointer" v-for="(suggestion, i) in suggestions" :tabindex="i+1" :id="`line${i+1}`" :key="`sug-${i}`" @focus="suggestionFocused(suggestion)" @mouseover="suggestionFocused(suggestion)" @mouseout="searchInputFocused()" @click.stop="suggestionPressed(i)" @keydown.enter="suggestionPressed(i)" @keydown.down="downPressedFrom(i+1)" @keydown.up="upPressedFrom(i+1)">
+      <div class="max-w-md mx-auto">
+        <div class="border-t border-green-dark-two mx-6"></div>
+        <div class="w-full text-green-darker pt-4 pb-8">
+          <div class="px-6 py-2 my-1 rounded-full hover:bg-green-dark cursor-pointer" v-for="(suggestion, i) in suggestions" :tabindex="i+1" :id="`line${i+1}`" :key="`sug-${i}`" @focus="suggestionFocused(suggestion)" @mouseover="suggestionFocused(suggestion)" @mouseout="searchInputFocused()" @click.stop="suggestionPressed(i)" @keydown.enter="suggestionPressed(i)" @keydown.down="downPressedFrom(i+1)" @keydown.up="upPressedFrom(i+1)">
             <span class="text-sm text-white">{{searchInputTemp || searchInput}}</span> in {{suggestion}}
           </div>
-          <div class="px-6 py-3 hover:bg-green-dark cursor-pointer" v-for="(path, i) in suggestionsPaths" :tabindex="i+1+suggestions.length" :id="`line${i+1+suggestions.length}`" :key="`path-${i}`" @focus="pathFocused(path)" @mouseover="pathFocused(path)" @mouseout="searchInputFocused()" @click.stop="suggestionPathPressed(path)" @keydown.enter="suggestionPathPressed(path)" @keydown.down="downPressedFrom(i+1+suggestions.length)" @keydown.up="upPressedFrom(i+1+suggestions.length)">
+          <div class="w-full pt-2" v-if="suggestionsPaths.length > 0"></div>
+          <div class="px-6 py-2 my-1 rounded-full hover:bg-green-dark cursor-pointer" v-for="(path, i) in suggestionsPaths" v-if="i < 5" :tabindex="i+1+suggestions.length" :id="`line${i+1+suggestions.length}`" :key="`path-${i}`" @focus="pathFocused(path)" @mouseover="pathFocused(path)" @mouseout="searchInputFocused()" @click.stop="suggestionPathPressed(path)" @keydown.enter="suggestionPathPressed(path)" @keydown.down="downPressedFrom(i+1+suggestions.length)" @keydown.up="upPressedFrom(i+1+suggestions.length)">
             <span class="text-sm text-white">all</span> in {{path.name}}
           </div>
-          <div class="px-6 py-3 hover:bg-green-dark cursor-pointer" v-if="searchResultTemp.length || suggestionsPaths.length" :tabindex="suggestions.length+1+suggestionsPaths.length" :id="`line${suggestions.length+1+suggestionsPaths.length}`" @focus="everywhereFocused()" @mouseover="everywhereFocused()" @mouseout="searchInputFocused()" @click.stop="searchPressed()" @keydown.enter="searchPressed()" @keydown.down="downPressedFrom(suggestions.length+1+suggestionsPaths.length)" @keydown.up="upPressedFrom(suggestions.length+1+suggestionsPaths.length)">
+          <div class="w-full pt-2"></div>
+          <div class="px-6 py-2 my-1 rounded-full hover:bg-green-dark cursor-pointer" v-if="searchResultTemp.length || suggestionsPaths.length" :tabindex="suggestions.length+1+(suggestionsPaths.length > 5 ? 5 : suggestionsPaths.length)" :id="`line${suggestions.length + 1 + (suggestionsPaths.length > 5 ? 5 : suggestionsPaths.length)}`" @focus="everywhereFocused()" @mouseover="everywhereFocused()" @mouseout="searchInputFocused()" @click.stop="searchEverywherePressed()" @keydown.enter="searchEverywherePressed()" @keydown.down="downPressedFrom(suggestions.length + 1 + (suggestionsPaths.length > 5 ? 5 : suggestionsPaths.length))" @keydown.up="upPressedFrom(suggestions.length+1+(suggestionsPaths.length > 5 ? 5 : suggestionsPaths.length))">
             <span class="text-sm text-white">{{searchInputTemp || searchInput}}</span> everywhere
           </div>
-          <div v-else class="px-6 py-3">
+          <div v-else class="px-6 py-2 my-1">
             found nowhere :(
           </div>
         </div>
       </div>
     </div>
     <!-- Content -->
+    <div>{{refresher}}</div>
     <div class="fixed pin-t pin-l w-screen h-screen overflow-scroll" @click="hideSuggestions()">
       <div class="mt-8 pt-8"></div>
-      <div class="max-w-md min-h-screen mx-auto pt-8 px-4">
+      <div class="max-w-md min-h-screen mx-auto pt-8 px-6">
         <!-- <div v-if="selectedSuggestion" class="pb-6 text-2xl font-bold">{{selectedSuggestion}} <span @click="removeSelectedSuggestionPressed()"><i class="ion-md-close text-sm text-grey-light cursor-pointer py-2"></i></span></div> -->
-        <div v-for="(plant, i) in searchResult" :key="i" class="border border-grey-light rounded px-4 py-3 mb-3">
-          <div class="text-lg font-semibold pb-2">{{plant.name}}</div>
-          <div class="">{{plant.path.country}} / {{plant.path.state}}<span v-if="plant.path.city"> / {{plant.path.city}}</span></div>
+        <div v-for="(plant, i) in searchResult" :key="i" class="border-b border-grey-lighter py-6 flex items-center list-item">
+          <div class="flex-1">
+            <div class="text-17 pb-2" style="font-size: 19px;">{{plant.name}}</div>
+            <div class="text-green text-sm">{{plant.path.country}} / {{plant.path.state}}<span v-if="plant.path.city"> / {{plant.path.city}}</span></div>
+          </div>
+          <div class="">
+            <button @click="leafPressed(i)">
+              <img src="./../../assets/icn-leaf.png" class="action" :class="{'selected': plant.isSelected}" style="width: 24px;">
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -57,7 +69,7 @@ import plantsjson from './../../assets/i2s-search.json'
 export default {
   data () {
     return {
-      plants: plantsjson,
+      plants: [],
       allCountries: null,
       allStates: null,
       allCities: null,
@@ -70,7 +82,8 @@ export default {
       suggestionsPaths: [],
       selectedSuggestion: null,
       suffix: '',
-      suffixTemp: ''
+      suffixTemp: '',
+      refresher: 0
     }
   },
   computed: {
@@ -140,6 +153,16 @@ export default {
       }
       document.getElementById('line0').blur()
     },
+    searchEverywherePressed () {
+      this.doShowSuggestions = false
+      this.suffix = ' everywhere'
+      this.suffixTemp = ' everywhere'
+      this.searchResult = this.searchResultTemp
+      this.selectedSuggestion = null
+      this.searchInputTemp = ''
+      this.suggestItems()
+      this.suggestPaths()
+    },
     backFromSearchPressed () {
       this.searchInput = ''
       this.searchInputTemp = ''
@@ -200,12 +223,16 @@ export default {
           document.getElementById(`line0`).focus()
         }, 0)
       } else if (index !== 0) document.getElementById(`line${index - 1}`).focus()
-      else document.getElementById(`line${this.suggestions.length + this.suggestionsPaths.length + 1}`).focus()
+      else document.getElementById(`line${this.suggestions.length + (this.suggestionsPaths.length > 5 ? 5 : this.suggestionsPaths.length) + 1}`).focus()
     },
     removeSelectedSuggestionPressed () {
       if (this.searchInput) this.searchResult = this.plants.filter(plant => plant.name.toUpperCase().includes(this.searchInput.toUpperCase()))
       else this.searchResult = this.plants
       this.selectedSuggestion = null
+    },
+    leafPressed (i) {
+      this.searchResult[i].isSelected = !this.searchResult[i].isSelected
+      this.refresher++
     },
     //
     // ACTIONS
@@ -349,6 +376,11 @@ export default {
     this.populateAllCountries()
     this.populateAllStates()
     this.populateAllCities()
+    for (let i in plantsjson) {
+      let item = plantsjson[i]
+      item.isSelected = false
+      this.plants.push(item)
+    }
   }
 }
 </script>
@@ -356,5 +388,36 @@ export default {
 <style lang="scss" scoped>
 #d1 {
   font-family: 'IBM Plex Serif', apple-system, Roboto, serif;
+}
+
+button, button:active {
+  border: none;
+  outline: none;
+}
+
+.list-item {
+  & .action {
+    opacity: 0;
+    filter: grayscale(100%);
+    &.selected {
+      opacity: 1;
+      filter: grayscale(0%);
+    }
+  }
+  &:hover {
+    & .action {
+      opacity: 0.5;
+      &:hover {
+        opacity: 1;
+      }
+      &.selected {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+.notSelected {
+  filter: grayscale(100%);
 }
 </style>

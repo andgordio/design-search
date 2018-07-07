@@ -82,6 +82,7 @@ let colors = {
 
   'green-darkest': '#0f2f21',
   'green-darker': '#2E7C57',
+  'green-dark-two': '#3B9F70',
   'green-dark': '#3EA675',
   'green': '#42B17C',
   'green-light': '#51d88a',
@@ -253,6 +254,7 @@ module.exports = {
     'xs': '.75rem',     // 12px
     'sm': '.875rem',    // 14px
     'base': '1rem',     // 16px
+    '17': '17px',       // 17px
     'lg': '1.125rem',   // 18px
     'xl': '1.25rem',    // 20px
     '2xl': '1.5rem',    // 24px
