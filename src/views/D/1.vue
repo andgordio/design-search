@@ -47,15 +47,15 @@
       <div class="mt-8 pt-8"></div>
       <div class="max-w-md min-h-screen mx-auto pt-8 px-6">
         <!-- <div v-if="selectedSuggestion" class="pb-6 text-2xl font-bold">{{selectedSuggestion}} <span @click="removeSelectedSuggestionPressed()"><i class="ion-md-close text-sm text-grey-light cursor-pointer py-2"></i></span></div> -->
-        <div v-for="(plant, i) in searchResult" :key="i" class="border-b border-grey-lighter py-6 flex items-center list-item">
+        <div v-for="(plant, i) in searchResult" :key="i" @click="leafPressed(i)" class="border-b border-grey-lighter py-6 flex items-center list-item cursor-pointer">
           <div class="flex-1">
             <div class="text-17 pb-2" style="font-size: 19px;">{{plant.name}}</div>
             <div class="text-green text-sm">{{plant.path.country}} / {{plant.path.state}}<span v-if="plant.path.city"> / {{plant.path.city}}</span></div>
           </div>
           <div class="">
-            <button @click="leafPressed(i)">
+            <div>
               <img src="./../../assets/icn-leaf.png" class="action" :class="{'selected': plant.isSelected}" style="width: 24px;">
-            </button>
+            </div>
           </div>
         </div>
       </div>
@@ -382,14 +382,16 @@ export default {
     }
   },
   created () {
-    this.populateAllCountries()
-    this.populateAllStates()
-    this.populateAllCities()
     for (let i in plantsjson) {
       let item = plantsjson[i]
       item.isSelected = false
       this.plants.push(item)
     }
+    setTimeout(() => {
+      this.populateAllCountries()
+      this.populateAllStates()
+      this.populateAllCities()
+    }, 100)
   },
   mounted () {
     document.onkeydown = (evt) => {
